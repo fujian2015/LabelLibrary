@@ -1,3 +1,5 @@
+package com.asiainfo.ocdp.stream.label.examples
+
 import com.asiainfo.ocdp.stream.common.StreamingCache
 import com.asiainfo.ocdp.stream.label.Label
 
