@@ -8,15 +8,15 @@ import org.slf4j.LoggerFactory
 import scala.collection.mutable
 
 /**
+  * 用户轨迹标签
   * Created by gengwang on 16/8/11.
   */
 class SiteLabel extends Label {
 
+  lazy val thresholdValue = conf.getLong(LabelConstant.STAY_TIMEOUT, LabelConstant.DEFAULT_TIMEOUT_VALUE)
   val logger = LoggerFactory.getLogger(this.getClass)
   val fullPathKey = "full_path"
   val isLatestSite = "isLatestSite"
-
-  lazy val thresholdValue = conf.getLong(LabelConstant.STAY_TIMEOUT, LabelConstant.DEFAULT_TIMEOUT_VALUE)
 
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
     //2更新标签

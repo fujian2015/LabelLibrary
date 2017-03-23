@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import scala.collection.mutable
 
 /**
+  * 打上旅游区域、安防区域标签
   * Created by gengwang on 16/8/11.
   */
 class AreaLabel extends Label {
@@ -72,6 +73,11 @@ class AreaLabel extends Label {
 
   }
 
+  /**
+    * @param line :MC信令对像
+    * @return codis数据库的key
+    */
+  override def getQryKeys(line: Map[String, String]): Set[String] = Set[String]("area_info:" + line("lac") + "_" + line("cell"))
 
   /**
     * 把cache的数据转为可变map
@@ -92,11 +98,5 @@ class AreaLabel extends Label {
   private def transformCacheMap2ImmutableMap(labelsPropMap: mutable.Map[String, mutable.Map[String, String]]) = {
     if (labelsPropMap.isEmpty) Map[String, Map[String, String]]() else labelsPropMap.map(propSet => (propSet._1, propSet._2.toMap)).toMap
   }
-
-  /**
-    * @param line:MC信令对像
-    * @return codis数据库的key
-    */
-  override def getQryKeys(line: Map[String, String]): Set[String] = Set[String]("area_info:" + line("lac") + "_" + line("cell"))
 
 }
