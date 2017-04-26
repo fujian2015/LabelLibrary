@@ -78,7 +78,7 @@ class UseAndStateRule extends Label {
   }
 
   override def getQryKeys(line: Map[String, String]): Set[String] ={
-    val keys=Set()[String]
+    val keys=Set[String]()
     val imsi_str= line(ds_callingImsi);
     if(imsi_str== null||"".eq(imsi_str) || imsi_str == "000000000000000"||imsi_str == "ffffffffffffffff"){
     }else{
