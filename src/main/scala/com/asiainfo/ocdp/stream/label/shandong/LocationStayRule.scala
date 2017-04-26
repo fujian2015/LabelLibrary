@@ -1,12 +1,11 @@
-package com.asiainfo.ocdp.stream.label.liaoning
+package com.asiainfo.ocdp.stream.label.shandong
 
-import com.asiainfo.ocdp.stream.common.{LabelProps, StreamingCache}
+import com.asiainfo.ocdp.stream.common.StreamingCache
 import com.asiainfo.ocdp.stream.constant.LabelConstant
 import com.asiainfo.ocdp.stream.tools.DateFormatUtils
-import com.asiainfo.ocdp.stream.label.Label
 import scala.collection.mutable
 import scala.util.Sorting._
-import java.util.Date
+import com.asiainfo.ocdp.stream.label.Label
 
 /**
   * 驻留时长标签
@@ -15,6 +14,7 @@ import java.util.Date
 class LocationStayRule extends Label {
 
   // 获取配置 用户设定的各业务连续停留的时间坎(排序升序)
+  //	lazy val stayTimeThresholdList = conf.get(LabelConstant.STAY_LIMITS).split(LabelConstant.ITME_SPLIT_MARK).map(_.trim)
   lazy val stayTimeOrderList = conf.get(LabelConstant.STAY_LIMITS).split(LabelConstant.ITME_SPLIT_MARK).map(_.trim.toLong).sorted
   // 推送满足设置的数据坎的最大值:true;最小值：false
   lazy val userDefPushOrde = conf.getBoolean(LabelConstant.STAY_MATCHMAX, true)
@@ -29,19 +29,20 @@ class LocationStayRule extends Label {
   //信令字段开始时间的格式
   val type_sine = "stay_"
 
+  /**
+    * 框架调用入口方法
+    */
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
 
-    val now = new Date()
-    println("---------开始执行驻留时长标签操作---------" + now)
+    //2更新标签
+    //2.1 根据标签缓存和当前日志信息更新标签
+    //a. 获取locationStayRule的cache
     val cacheInstance = if (cache == null) new LabelProps else cache.asInstanceOf[LabelProps]
 
     // cache中各区域的属性map
     val cacheImmutableMap = cacheInstance.labelsPropList
     // map属性转换
-    println("---cacheImmutableMap:" + cacheImmutableMap)
     val cacheMutableMap = transformCacheMap2mutableMap(cacheImmutableMap)
-    println("---cacheMutableMap:" + cacheMutableMap)
-
     // mcsource 打标签用[初始化标签值]
     val initMap = fieldsMap()
     // 只对当前信令所在区域打驻留标签,用户定义的非信令所在区域用黙认值“0”代替
@@ -58,21 +59,12 @@ class LocationStayRule extends Label {
 
     // cache中所有区域的最大lastTime
     val cacheMaxLastTime = getCacheMaxLastTime(cacheMutableMap)
-
-    println("-----cacheMaxLastTime:" + cacheMaxLastTime)
-    println("-----locationList.size:" + locationList.size)
-    println("-----stay.timeout:" + thresholdValue)
-
+    // 
     if (locationList.size > 0) {
       val timeMs = DateFormatUtils.dateStr2Ms(line(time_sine), dateformat) //信令数据产生的时间戳
-      println("-----timeMs:" + timeMs)
-
       locationList.map(location => {
-        println("-------location-------" + location)
         // A.此用的所有区域在cache中的信息已经过期视为无效，标签打为“0”；重新设定cache;(5小时，默认30分钟)
         if (timeMs - cacheMaxLastTime > thresholdValue) {
-          println("-----timeMs - cacheMaxLastTime > thresholdValue，放入缓存")
-
           // 1. 连续停留标签置“0”
           mcStayLabelsMap += ((type_sine + location) -> LabelConstant.LABEL_STAY_TIME_ZERO)
           // 2. 清除cache信息
@@ -81,15 +73,10 @@ class LocationStayRule extends Label {
           val cacheStayLabelsMap = mutable.Map[String, String]()
           cacheStayLabelsMap += (LabelConstant.LABEL_STAY_FIRSTTIME -> timeMs.toString)
           cacheStayLabelsMap += (LabelConstant.LABEL_STAY_LASTTIME -> timeMs.toString)
-          // 去掉前缀stay_,addCacheAreaStayTime方法设置的key为location不带前缀
-          // cacheMutableMap += ((type_sine + location) -> cacheStayLabelsMap)
-          cacheMutableMap += (location -> cacheStayLabelsMap)
-
-          println("缓存cacheMutableMap=" + cacheMutableMap)
+          cacheMutableMap += ((type_sine + location) -> cacheStayLabelsMap)
         } else if (cacheMaxLastTime - timeMs > thresholdValue) {
-          println("-----cacheMaxLastTime - timeMs > thresholdValue，延迟到达视为无效")
-
-          // 此条数据为延迟到达的数据，已超过阈值视为无效，标签打为“0”；cache不做设定;
+          //B.此条数据为延迟到达的数据，已超过阈值视为无效，标签打为“0”；cache不做设定;
+          // 1. 连续停留标签置“0”
           mcStayLabelsMap += ((type_sine + location) -> LabelConstant.LABEL_STAY_TIME_ZERO)
         } else {
           //C.此条数据时间为[(maxLastTime-thresholdValue)~maxLastTime~(maxLastTime+thresholdValue)]之间
@@ -133,11 +120,8 @@ class LocationStayRule extends Label {
   private def getCacheMaxLastTime(labelsPropMap: mutable.Map[String, mutable.Map[String, String]]): Long = {
     val areaPropArray = labelsPropMap.toArray
 
-    if (areaPropArray.isEmpty) {
-      println("------areaPropArray.isEmpty------")
-      0L
-    } else {
-      println("------areaPropArray.is not empty------:" + areaPropArray.toString)
+    if (areaPropArray.isEmpty) 0L
+    else {
       // 对用户cache中的区域列表按lastTime排序（升序）
       quickSort(areaPropArray)(Ordering.by(_._2.get(LabelConstant.LABEL_STAY_LASTTIME)))
       // 取用户cache区域列表中的最大lastTime
@@ -157,13 +141,13 @@ class LocationStayRule extends Label {
                           labelsPropMap: mutable.Map[String, mutable.Map[String, String]],
                           mcStayLabelsMap: mutable.Map[String, String],
                           mcTime: Long) {
-
-    println("location:" + location + ",mcTime:" + mcTime)
-    // 使用宽松的过滤策略，相同区域信令如果间隔超过${thresholdValue}，则判定为不连续
+    // cache属性map
+    //    lazy val labelsPropMap = cacheInstance.labelsPropList
+    // b. 使用宽松的过滤策略，相同区域信令如果间隔超过${thresholdValue}，则判定为不连续
+    //    val area = labelsPropMap.get(location)
     val area = labelsPropMap.get(location)
     area match {
       case None => {
-        println("------labelsPropMap.get(location):case None")
         mcStayLabelsMap += ((type_sine + location) -> LabelConstant.LABEL_STAY_TIME_ZERO)
         addCacheAreaStayTime(labelsPropMap, location, mcTime, mcTime)
       }
@@ -171,8 +155,7 @@ class LocationStayRule extends Label {
         //取出缓存的firstTime和lastTime
         val first = getCacheStayTime(currentStatus).get("first").get
         val last = getCacheStayTime(currentStatus).get("last").get
-        println("----FIRST TIME : " + first + " , LAST TIME : " + last + " , MCTIME : " + mcTime)
-
+        //        println("FIRST TIME : " + first + " , LAST TIME : " + last + " , MCTIME : " + mcTime)
         if (first > last) {
           // 无效数据，丢弃，本条视为first
           mcStayLabelsMap += ((type_sine + location) -> LabelConstant.LABEL_STAY_DEFAULT_TIME)
@@ -190,8 +173,7 @@ class LocationStayRule extends Label {
           }
         } else if (mcTime <= last) {
           // 本条属于延迟到达，不处理
-          // mcStayLabelsMap += ((type_sine + location) -> LabelConstant.LABEL_STAY_DEFAULT_TIME)
-          mcStayLabelsMap += ((type_sine + location) -> evaluateTimeForLnyd(last - first, mcTime - first))
+          mcStayLabelsMap += ((type_sine + location) -> LabelConstant.LABEL_STAY_DEFAULT_TIME)
         } else if (mcTime - last > thresholdValue) {
           // 本条与上一条数据间隔过大，判定为不连续
           mcStayLabelsMap += ((type_sine + location) -> LabelConstant.LABEL_STAY_DEFAULT_TIME)
@@ -202,8 +184,6 @@ class LocationStayRule extends Label {
 
           val newtime = evaluateTimeForLnyd(last - first, mcTime - first)
           mcStayLabelsMap.put((type_sine + location), newtime)
-          println("------newtime:" + newtime)
-
         }
       }
     }
@@ -284,4 +264,8 @@ class LocationStayRule extends Label {
     }
   }
 
+}
+
+class LabelProps extends StreamingCache with Serializable {
+  var labelsPropList = Map[String, Map[String, String]]()
 }

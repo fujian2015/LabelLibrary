@@ -1,12 +1,13 @@
-package com.asiainfo.ocdp.stream.label.liaoning
+package com.asiainfo.ocdp.stream.label.shandong
 
 import com.asiainfo.ocdp.stream.common.StreamingCache
-import com.asiainfo.ocdp.stream.label.Label
 import org.slf4j.LoggerFactory
-
 import scala.collection.mutable
+import com.asiainfo.ocdp.stream.config.LabelConf
+import com.asiainfo.ocdp.stream.label.Label
 
 /**
+  * Created by leo on 4/29/15.
   * 用户标签，查询codis中用户信息，并增加到数据源原始数据中
   */
 class UserBaseInfoRule extends Label {
@@ -18,7 +19,7 @@ class UserBaseInfoRule extends Label {
   //数据源接口定义的主叫字段名称，需与配置现场一致。
   val calledImsiFileName = "calledimsi"
   //数据源接口定义的被叫字段名称，需与配置现场一致。
-  val label_props_pname = "user_info_cols"
+  val label_props_pname = "user_info_cols";
   //标签中定义的props的字段名称，需与配置现场一致。如："props":[{"pname":"user_info_cols","pvalue":"product_no,city_id"}]
 
   val codis_key_prefix = "userinfo:" //codis中用户信息查询key的前缀
