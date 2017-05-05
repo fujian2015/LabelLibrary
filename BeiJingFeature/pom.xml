@@ -21,13 +21,14 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/../lib/core-2.0.1.jar</systemPath>
         </dependency>
-        <!-- dacp包进行MD5和aes加密 -->
+
+        <!-- 进行MD5和aes加密 -->
         <dependency>
-            <groupId>com.asiainfo.dacp</groupId>
-            <artifactId>dacp-crypto</artifactId>
-            <version>2.0.4</version>
+            <groupId>com.asiainfo.ocdp</groupId>
+            <artifactId>ocsp-crypto</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/dacp-crypto-2.0.4.jar</systemPath>
+            <systemPath>${project.basedir}/../lib/ocsp-crypto-1.0.1-SNAPSHOT.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

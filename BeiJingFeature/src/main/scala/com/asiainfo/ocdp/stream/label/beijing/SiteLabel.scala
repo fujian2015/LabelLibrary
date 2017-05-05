@@ -14,9 +14,9 @@ import scala.collection.mutable
 class SiteLabel extends Label {
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  val lac_FileName = "lac"
+  val lac_fieldName = "lac"
   //数据源接口定义的lac字段名称，需与配置现场一致
-  val ci_FileName = "ci"
+  val ci_fieldName = "ci"
   //数据源接口定义的ci字段名称，需与配置现场一致
   val type_sine = "area_"
   //标签增强字段的前缀：驻留时长标签会使用、
@@ -34,6 +34,8 @@ class SiteLabel extends Label {
     // 根据largeCell解析出当前所处位置区域
     //val currentArea = labelQryData.get(getQryKeys(line).head).get
     val currentArea = labelQryData.getOrElse(getQryKeys(line).head, Map[String, String]())
+
+    println("---------currentArea：" + currentArea)
 
     // 标记业务区域标签： 如果codis hashmap中，codis value存在item为areas的字段，则取出areas字段中定义的相关区域的值
     //如{"lacci2area:xxxx":{areas:[WLAN,TRAIN,SCENIC,SCHOOL]}} 某个基站区域是WLAN覆盖区域、火车站、景区、校园
@@ -83,6 +85,6 @@ class SiteLabel extends Label {
     * @return codis数据库的key
     */
   override def getQryKeys(line: Map[String, String]): Set[String] = {
-    Set[String](codis_key_prefix + line(lac_FileName) + codis_foreignKeys_separator + line(ci_FileName))
+    Set[String](codis_key_prefix + line(lac_fieldName) + codis_foreignKeys_separator + line(ci_fieldName))
   }
 }

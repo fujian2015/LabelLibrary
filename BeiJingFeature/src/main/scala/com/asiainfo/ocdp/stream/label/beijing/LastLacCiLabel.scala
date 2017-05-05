@@ -48,7 +48,10 @@ class LastLacCiLabel extends Label {
     //增强：上一次实时位置lac_ci的value
     newLine.update(labelAddFieldName_lac, last_lac_id)
     newLine.update(labelAddFieldName_cell, last_cell_id)
-    newLine.update(labelAddFieldName_lac_cell, last_lac_id + "_" + last_cell_id)
+    if (last_lac_id != "" && last_cell_id != "") {
+      newLine.update(labelAddFieldName_lac_cell, last_lac_id + "_" + last_cell_id)
+    }
+
     newLine ++= originalDataMap
 
     //更新codis的cache
