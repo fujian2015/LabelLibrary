@@ -1,13 +1,12 @@
-package com.asiainfo.ocdp.stream.label.shandong
+package com.asiainfo.ocdp.stream.label
 
 import com.asiainfo.ocdp.stream.common.StreamingCache
 import scala.collection.mutable
 import com.asiainfo.ocdp.stream.config.LabelConf
-import com.asiainfo.ocdp.stream.label.Label
 
 /**
-  * Created by tsingfu on 15/9/14.
-  */
+ * Created by tsingfu on 15/9/14.
+ */
 class ExtLastimeiRule extends Label {
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
 

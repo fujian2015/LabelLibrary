@@ -1,14 +1,14 @@
-package com.asiainfo.ocdp.stream.label.shandong
+package com.asiainfo.ocdp.stream.label
 
 import com.asiainfo.ocdp.stream.common.StreamingCache
 import com.asiainfo.ocdp.stream.tools.DateFormatUtils
 import scala.collection.mutable
 import com.asiainfo.ocdp.stream.config.LabelConf
-import com.asiainfo.ocdp.stream.label.Label
 
 /**
-  * Created by tsingfu on 15/9/14.
-  */
+ * Created by tsingfu on 15/9/14.
+  * 速度标签
+ */
 class LabelTrack extends Label {
   //  def attachMCLabel(mcLogRow: Row, cache: StreamingCache, labelQryData: Map[String, Map[String, String]]): StreamingCache
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
@@ -32,7 +32,7 @@ class LabelTrack extends Label {
 
     /** Realtime join: 根据当前信令数据, 实时关联Codis(基站信息表), 取出当前基站经纬度 */
     //val cachedArea = labelQryData.get(getQryKeys(line).head).get
-    val cachedArea = labelQryData.getOrElse(getQryKeys(line).head, Map[String, String]())
+    val cachedArea = labelQryData.getOrElse(getQryKeys(line).head,Map[String, String]())
     val geo_longitude_new = if (cachedArea.contains("geo_longitude")) cachedArea("geo_longitude")
     else "0"
     val geo_latitude_new = if (cachedArea.contains("geo_latitude")) cachedArea("geo_latitude")
@@ -66,15 +66,19 @@ class LabelTrack extends Label {
   }
 
   /**
-    * @param line :MC信令对像
-    * @return codis数据库的key
-    */
+   * @param line:MC信令对像
+   * @return codis数据库的key
+   */
   override def getQryKeys(line: Map[String, String]): Set[String] = Set[String]("lacci2area:" + line("lac") + ":" + line("ci"))
 
+  def rad(d: Double): Double = {
+    d * Math.PI / 180.0
+  }
+
   /**
-    * @constructor 计算经纬度距离函数
-    * @return 经纬度距离函数
-    */
+   * @constructor  计算经纬度距离函数
+   * @return 经纬度距离函数
+   */
   def getDistance(seq: Seq[String]): Double = {
     val EARTH_RADIUS = 6378.137
 
@@ -93,10 +97,6 @@ class LabelTrack extends Label {
       Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)))
     s = s * EARTH_RADIUS
     Math.round(s * 10000) / 10000
-  }
-
-  def rad(d: Double): Double = {
-    d * Math.PI / 180.0
   }
 
 }

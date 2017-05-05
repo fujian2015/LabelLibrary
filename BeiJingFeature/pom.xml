@@ -1,0 +1,33 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+	<parent>
+        <groupId>com.asiainfo.ocdp</groupId>
+        <artifactId>LabelLibrary</artifactId>
+        <version>2.0.1</version>
+    </parent>
+
+    <name>BeiJingFeature</name>
+    <artifactId>BeiJingFeature</artifactId>
+	<packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.asiainfo.ocdp</groupId>
+            <artifactId>core</artifactId>
+            <version>2.0.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/core-2.0.1.jar</systemPath>
+        </dependency>
+        <!-- dacp包进行MD5和aes加密 -->
+        <dependency>
+            <groupId>com.asiainfo.dacp</groupId>
+            <artifactId>dacp-crypto</artifactId>
+            <version>2.0.4</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/dacp-crypto-2.0.4.jar</systemPath>
+        </dependency>
+    </dependencies>
+</project>

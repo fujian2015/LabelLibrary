@@ -6,6 +6,7 @@
     <artifactId>LabelLibrary</artifactId>
     <version>2.0.1</version>
 
+	<packaging>pom</packaging>
 
     <properties>
         <scala.version>2.10.4</scala.version>
@@ -13,14 +14,14 @@
         <spark.version>1.6.0</spark.version>
     </properties>
 
+	<modules>
+		<module>ShanDongFeature</module>
+		<module>ShanXiFeature</module>
+		<module>LiaoNingFeature</module>
+		<module>BeiJingFeature</module>
+	</modules>
+
     <dependencies>
-        <dependency>
-            <groupId>com.asiainfo.ocdp</groupId>
-            <artifactId>core</artifactId>
-            <version>2.0.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/core-2.0.1.jar</systemPath>
-        </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-compiler</artifactId>
@@ -51,19 +52,8 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.5</version>
         </dependency>
-
-        <!-- dacp包进行MD5和aes加密 -->
-        <dependency>
-            <groupId>com.asiainfo.dacp</groupId>
-            <artifactId>dacp-crypto</artifactId>
-            <version>2.0.4</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/dacp-crypto-2.0.4.jar</systemPath>
-        </dependency>
-
     </dependencies>
     <build>
-
         <plugins>
             <plugin>
                 <groupId>org.scala-tools</groupId>
@@ -77,9 +67,6 @@
                 </executions>
                 <configuration>
                     <scalaVersion>${scala.version}</scalaVersion>
-                    <includes>
-                        <include>**/beijing/*.scala</include>
-                    </includes>
                 </configuration>
             </plugin>
         </plugins>

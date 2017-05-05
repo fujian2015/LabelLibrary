@@ -1,28 +1,27 @@
-package com.asiainfo.ocdp.stream.label.shandong
+package com.asiainfo.ocdp.stream.label
 
 import com.asiainfo.ocdp.stream.common.StreamingCache
 import com.asiainfo.ocdp.stream.constant.LabelConstant
 import org.slf4j.LoggerFactory
-import com.asiainfo.ocdp.stream.label.Label
+
 import scala.collection.mutable
 
 /**
-  * Created by liugang on 16-3-3.
-  */
-class TermRule extends Label {
+ * Created by liugang on 16-3-3.
+ */
+class TermRule extends Label{
   val logger = LoggerFactory.getLogger(this.getClass)
   //终端标签前缀
   val type_sine = "term_"
   //终端信息(codis)前缀
   val info_sine = "terminfo_"
-
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
 
     var normal_imei = line("imei")
     var fieldMap = fieldsMap()
 
 
-    if (normal_imei.length() < 8) {
+    if(normal_imei.length() < 8){
       //do nothing
     }
     else {
@@ -30,6 +29,7 @@ class TermRule extends Label {
 
       val info_cols = conf.get("term_info_cols").split(",")
       val qryKeys = getQryKeys(line)
+
 
 
       if (qryKeys.size == 0) {
@@ -88,15 +88,15 @@ class TermRule extends Label {
       //    line.foreach(fieldMap.+(_))
       fieldMap ++= line
     }
-    (fieldMap.toMap, cache)
+      (fieldMap.toMap, cache)
 
   }
 
   override def getQryKeys(line: Map[String, String]): Set[String] =
     Set[String](line("callingimei"), line("calledimei")).
       filterNot(value => {
-        value.length < 8 || value == null || value == "000000000000000"
-      }).map("terminfo:" + _)
+      value.length < 8 || value == null || value == "000000000000000"
+    }).map("terminfo:" + _)
 
 
 }
