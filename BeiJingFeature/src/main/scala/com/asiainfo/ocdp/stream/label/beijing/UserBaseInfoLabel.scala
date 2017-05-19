@@ -124,7 +124,7 @@ class UserBaseInfoLabel extends Label {
         labelMap.update(datetime_format, transDateFormat(dateformat_yyyyMMddHHmmss, dateformat_yyyyMMddHHmmssSSS, datetime))
       }
     } else {
-      labelMap.update(datetime_format, datetime)
+      labelMap.update(datetime_format, datetime) //mc信令不用转换格式
     }
 
     labelMap ++= line

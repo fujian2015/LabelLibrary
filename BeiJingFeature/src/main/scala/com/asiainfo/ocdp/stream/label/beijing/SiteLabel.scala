@@ -30,7 +30,7 @@ class SiteLabel extends Label {
 
     val labelData = fieldsMap()
     //初始化标签增强字段的值""，LabelItems定义的字段map:bts_name->'',school_id->''
-    val label_addFields = conf.getFields //标签增强字段list:bts_name,school_id
+    val label_addFields = conf.getFields
 
     val qryKey = getQryKeys(line)
 
