@@ -19,9 +19,9 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="Maven: com.asiainfo.dacp:dacp-crypto:2.0.4">
+      <library name="Maven: com.asiainfo.ocdp:ocsp-crypto:1.0.1-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/dacp-crypto-2.0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/ocsp-crypto-1.0.1-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
