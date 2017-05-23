@@ -27,54 +27,55 @@ class SiteLabel extends Label {
   val codis_foreignKeys_separator = "_" //codis多个key的连接符
 
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
+
     val labelData = fieldsMap()
     //初始化标签增强字段的值""，LabelItems定义的字段map:bts_name->'',school_id->''
-    val label_addFields = conf.getFields //标签增强字段list:bts_name,school_id
+    val label_addFields = conf.getFields
 
-    // 根据largeCell解析出当前所处位置区域
-    //val currentArea = labelQryData.get(getQryKeys(line).head).get
-    val currentArea = labelQryData.getOrElse(getQryKeys(line).head, Map[String, String]())
+    val qryKey = getQryKeys(line)
 
-    println("---------currentArea：" + currentArea)
+    if (qryKey.size == 1) {
+      val currentArea = labelQryData.getOrElse(qryKey.head, Map[String, String]())
 
-    // 标记业务区域标签： 如果codis hashmap中，codis value存在item为areas的字段，则取出areas字段中定义的相关区域的值
-    //如{"lacci2area:xxxx":{areas:[WLAN,TRAIN,SCENIC,SCHOOL]}} 某个基站区域是WLAN覆盖区域、火车站、景区、校园
-    if (currentArea.contains(LabelConstant.LABEL_AREA_LIST_KEY)) {
-      // 从codis中取区域
-      val areas = currentArea(LabelConstant.LABEL_AREA_LIST_KEY).trim()
-      if (areas != null && areas != "") {
-        // 信令所在区域列表
-        val areasList = areas.split(",")
-        // 只打信令所在区域中要指定的那些区域字段
-        areasList.foreach(area => {
-          // 添加区域标签前缀
-          val labelKey = type_sine + area.trim
-          // 在用户定义标签范围内则打标签
-          if (label_addFields.contains(labelKey)) {
-            // 打区域标签
-            labelData.update(labelKey, "true")
-          }
-        })
+      // 标记业务区域标签： 如果codis hashmap中，codis value存在item为areas的字段，则取出areas字段中定义的相关区域的值
+      //如{"lacci2area:xxxx":{areas:[WLAN,TRAIN,SCENIC,SCHOOL]}} 某个基站区域是WLAN覆盖区域、火车站、景区、校园
+      if (currentArea.contains(LabelConstant.LABEL_AREA_LIST_KEY)) {
+        // 从codis中取区域
+        val areas = currentArea(LabelConstant.LABEL_AREA_LIST_KEY).trim()
+        if (areas != null && areas != "") {
+          // 信令所在区域列表
+          val areasList = areas.split(",")
+          // 只打信令所在区域中要指定的那些区域字段
+          areasList.foreach(area => {
+            // 添加区域标签前缀
+            val labelKey = type_sine + area.trim
+            // 在用户定义标签范围内则打标签
+            if (label_addFields.contains(labelKey)) {
+              // 打区域标签
+              labelData.update(labelKey, "true")
+            }
+          })
+        }
       }
+
+      //过滤出标签字段中以areainfo_开头的字段
+      val conf_lable_info_items = label_addFields.filter(item => if (item.startsWith(info_sine)) true else false)
+      //对以areainfo_开头的字段，打上区域信息,如:areainfo_school_id标签字段，会从codis中取出该区域的shcool_id的值
+      conf_lable_info_items.foreach(info => {
+        val codis_item = info.substring(9) // 去除［areainfo_］前缀
+        labelData.update(info, currentArea.getOrElse(codis_item, ""))
+      })
+
+      //其它标签字段附加
+      val conf_lable_other_items = label_addFields.filter(item => if (item.startsWith(info_sine)) false else true)
+      conf_lable_other_items.foreach(item => {
+        currentArea.get(item) match {
+          case Some(value) =>
+            labelData += (item -> value)
+          case None =>
+        }
+      })
     }
-
-    //过滤出标签字段中以areainfo_开头的字段
-    val conf_lable_info_items = label_addFields.filter(item => if (item.startsWith(info_sine)) true else false)
-    //对以areainfo_开头的字段，打上区域信息,如:areainfo_school_id标签字段，会从codis中取出该区域的shcool_id的值
-    conf_lable_info_items.foreach(info => {
-      val codis_item = info.substring(9) // 去除［areainfo_］前缀
-      labelData.update(info, currentArea.getOrElse(codis_item, ""))
-    })
-
-    //其它标签字段附加
-    val conf_lable_other_items = label_addFields.filter(item => if (item.startsWith(info_sine)) false else true)
-    conf_lable_other_items.foreach(item => {
-      currentArea.get(item) match {
-        case Some(value) =>
-          labelData += (item -> value)
-        case None =>
-      }
-    })
 
     labelData ++= line
     (labelData.toMap, cache)

@@ -37,6 +37,8 @@ class UserBaseInfoLabel extends Label {
   val imsi_substr_three = "imsi_substr3"
   //mme信令截取前9位
   val msisdn_substr_nine = "msisdn_substr9"
+  // 漫游类型
+  val roaming_type = "roaming_type"
 
   //mme信令日期格式转换：yyyyMMddHHmmss->yyyyMMdd HH:mm:ss:SSS
   val datetime_format = "datetime_format"
@@ -51,11 +53,6 @@ class UserBaseInfoLabel extends Label {
     //用户标签字段
     val info_cols = conf.get(label_props_pname).split(",")
 
-    // add label with empty string if the fields does not exist
-    info_cols.foreach(labelName => {
-      labelMap += (labelName -> "")
-    })
-
     // 以下字段不需在json里面配置,默认为空
     labelMap += (imsi_md5 -> "")
     labelMap += (imsi_aes -> "")
@@ -64,54 +61,70 @@ class UserBaseInfoLabel extends Label {
     labelMap += (imsi_substr_three -> "")
     labelMap += (msisdn_substr_nine -> "")
     labelMap += (datetime_format -> "")
+    labelMap += (roaming_type -> "")
 
     //从codis获取缓存的用户信息
-    val cachedUser = labelQryData.getOrElse(codis_key_prefix + line(imsiFieldName), Map[String, String]())
+    val qryKey = getQryKeys(line)
 
-    println("--------cachedUser：" + cachedUser)
+    // println("1.qryKey:" + qryKey)
+    if (qryKey.size == 1) {
+      val cachedUser = labelQryData.getOrElse(qryKey.head, Map[String, String]())
+      //println("2.cachedUser:" + cachedUser)
+      if (cachedUser.isEmpty) {
+        //如果查询不到imsi,特殊处理
+        //println("2.cachedUser is empty!")
+      } else {
+        //println("3.info_cols:" + info_cols)
+        info_cols.foreach(labelName => {
+          val labelValue = cachedUser.getOrElse(labelName, "")
+          if (!labelValue.isEmpty) {
+            labelMap += (labelName -> labelValue)
+          }
+        })
+      }
 
-    if (cachedUser.isEmpty) {
-      //如果查询不到imsi,特殊处理
-      //labelMap += (LabelConstant.LABEL_CITY -> "")
-    } else {
-      info_cols.foreach(labelName => {
-        val labelValue = cachedUser.getOrElse(labelName, "")
-        if (!labelValue.isEmpty) {
-          labelMap += (labelName -> labelValue)
-        }
-      })
     }
 
     //追加imsi特殊处理字段
-    if (line(imsiFieldName) != null) {
-      val imsi_pre = line(imsiFieldName).substring(0, 3)
-      labelMap += (imsi_substr_three -> imsi_pre)
+    val imsi = line(imsiFieldName)
+    //println("4.imsi:" + imsi)
+    if (imsi != null && imsi != "") {
 
-      // 判断是否为国际漫游
-      if (imsi_pre != "460") {
-        labelMap.update("roaming_type", "1")
+      if (imsi.length >= 3) {
+        val imsi_pre = imsi.substring(0, 3)
+        labelMap.update(imsi_substr_three, imsi_pre)
+        // 判断是否为国际漫游
+        if (imsi_pre != "460") {
+          labelMap.update(roaming_type, "1")
+        }
       }
 
-      if (line(imsiFieldName).length == 15) {
-        labelMap += (imsi_md5 -> Md5Crypto.encrypt(line(imsiFieldName)))
-        labelMap += (imsi_aes -> AesCipher.encrypt(line(imsiFieldName)))
+      if (imsi.length == 15) {
+        labelMap.update(imsi_md5, Md5Crypto.encrypt(imsi))
+        labelMap.update(imsi_aes, AesCipher.encrypt(imsi))
       }
+
     }
 
     //追加imei特殊处理字段
-    if (line(imeiFieldName) != null && line(imeiFieldName).length >= 8) {
-      labelMap += (imei_aes -> (line(imeiFieldName).substring(0, 8) + AesCipher.encrypt(line(imeiFieldName).substring(8))))
-      labelMap += (imei_substr_eight -> (line(imeiFieldName).substring(0, 8)))
+    val imei = line(imeiFieldName)
+    //println("5.imei:" + imei)
+    if (imei != null && imei.length >= 8) {
+      labelMap.update(imei_aes, (imei.substring(0, 8) + AesCipher.encrypt(imei.substring(8))))
+      labelMap.update(imei_substr_eight, (imei.substring(0, 8)))
     }
 
     //4G mme信令处理
     val msisdn = line.getOrElse(msisdnFieldName, "")
     val datetime = line.getOrElse(datetimeFieldName, "")
-    if (msisdn != "" && msisdn != null) {
-      labelMap += (msisdn_substr_nine -> (msisdn.substring(0, 9)))
-    }
-    if (datetime != "" && datetime != null) {
-      labelMap += (datetime_format -> transDateFormat(dateformat_yyyyMMddHHmmss, dateformat_yyyyMMddHHmmssSSS, datetime))
+    //println("6.msisdn:" + msisdn + ",datetime:" + datetime)
+    if (msisdn != "" && msisdn != null && msisdn.length >= 9) {
+      labelMap.update(msisdn_substr_nine, (msisdn.substring(0, 9)))
+      if (datetime != "" && datetime != null) {
+        labelMap.update(datetime_format, transDateFormat(dateformat_yyyyMMddHHmmss, dateformat_yyyyMMddHHmmssSSS, datetime))
+      }
+    } else {
+      labelMap.update(datetime_format, datetime) //mc信令不用转换格式
     }
 
     labelMap ++= line
@@ -129,7 +142,14 @@ class UserBaseInfoLabel extends Label {
     */
   def transDateFormat(fromFormat: String, toFormat: String, dateStr: String): String = {
     val fromSdf: SimpleDateFormat = new SimpleDateFormat(fromFormat)
-    val toDateStr: String = new SimpleDateFormat(toFormat).format(fromSdf.parse(dateStr))
+    var toDateStr: String = ""
+    try {
+      toDateStr = new SimpleDateFormat(toFormat).format(fromSdf.parse(dateStr))
+    } catch {
+      case ex: Exception =>
+        logger.error(s"${dateStr} format do not match ${toFormat} ", ex)
+    }
+
     toDateStr
   }
 
