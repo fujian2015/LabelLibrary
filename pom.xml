@@ -19,7 +19,8 @@
 		<module>ShanXiFeature</module>
 		<module>LiaoNingFeature</module>
 		<module>BeiJingFeature</module>
-	</modules>
+        <module>YunNanFeature</module>
+    </modules>
 
     <dependencies>
         <dependency>
