@@ -27,22 +27,22 @@ class LocationStayLabel extends Label {
 
   val time_sine = "datetime_format"
   //信令字段表示开始时间
-  val dateformat = "yyyy-MM-dd HH:mm:ss.SSS"
+  val dateformat = "yyyyMMdd HH:mm:ss:SSS"
   //信令字段开始时间的格式
   val type_sine = "stay_"
 
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
 
     val now = new Date()
-    println("---------开始执行驻留时长标签操作---------" + now)
+    // println("---------开始执行驻留时长标签操作---------" + now)
     val cacheInstance = if (cache == null) new LabelProps else cache.asInstanceOf[LabelProps]
 
     // cache中各区域的属性map
     val cacheImmutableMap = cacheInstance.labelsPropList
     // map属性转换
-    println("---cacheImmutableMap:" + cacheImmutableMap)
+    //println("---cacheImmutableMap:" + cacheImmutableMap)
     val cacheMutableMap = transformCacheMap2mutableMap(cacheImmutableMap)
-    println("---cacheMutableMap:" + cacheMutableMap)
+    //println("---cacheMutableMap:" + cacheMutableMap)
 
     // mcsource 打标签用[初始化标签值]
     val initMap = fieldsMap()
@@ -61,9 +61,9 @@ class LocationStayLabel extends Label {
     // cache中所有区域的最大lastTime
     val cacheMaxLastTime = getCacheMaxLastTime(cacheMutableMap)
 
-    println("-----cacheMaxLastTime:" + cacheMaxLastTime)
-    println("-----locationList.size:" + locationList.size)
-    println("-----stay.timeout:" + thresholdValue)
+    //println("-----cacheMaxLastTime:" + cacheMaxLastTime)
+    //println("-----locationList.size:" + locationList.size)
+    //println("-----stay.timeout:" + thresholdValue)
 
     if (locationList.size > 0) {
       val timeMs = DateFormatUtils.dateStr2Ms(line(time_sine), dateformat) //信令数据产生的时间戳
