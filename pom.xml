@@ -20,6 +20,7 @@
 		<module>LiaoNingFeature</module>
 		<module>BeiJingFeature</module>
         <module>YunNanFeature</module>
+        <module>HuBeiFeature</module>
     </modules>
 
     <dependencies>

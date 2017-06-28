@@ -39,6 +39,10 @@ class UserBaseInfoLabel extends Label {
   val msisdn_substr_nine = "msisdn_substr9"
   // 漫游类型
   val roaming_type = "roaming_type"
+  // 手机号截取前7位
+  val phone_substr_seven = "phone_substr7"
+  // 手机号字段，需与codis和json里面配置的一样
+  val phoneFieldName = "phone_no"
 
   //mme信令日期格式转换：yyyyMMddHHmmss->yyyyMMdd HH:mm:ss:SSS
   val datetime_format = "datetime_format"
@@ -62,6 +66,7 @@ class UserBaseInfoLabel extends Label {
     labelMap += (msisdn_substr_nine -> "")
     labelMap += (datetime_format -> "")
     labelMap += (roaming_type -> "")
+    labelMap += (phone_substr_seven -> "")
 
     //从codis获取缓存的用户信息
     val qryKey = getQryKeys(line)
@@ -79,6 +84,14 @@ class UserBaseInfoLabel extends Label {
           val labelValue = cachedUser.getOrElse(labelName, "")
           if (!labelValue.isEmpty) {
             labelMap += (labelName -> labelValue)
+
+            // 截取手机号前7位
+            println("-------labelName:" + labelName + ",labelValue:" + labelValue)
+            if (labelName.equals(phoneFieldName)) {
+              labelMap.update(phone_substr_seven, labelValue.substring(0, 7))
+              println("-------phone_substr_seven:" + labelValue.substring(0, 7))
+            }
+
           }
         })
       }
