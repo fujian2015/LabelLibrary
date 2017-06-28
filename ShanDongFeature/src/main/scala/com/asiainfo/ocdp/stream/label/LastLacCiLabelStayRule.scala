@@ -37,23 +37,23 @@ class LastLacCiLabelStayRule extends Label {
     **/
   override def attachLabel(originalDataMap: Map[String, String], codisLableCache: StreamingCache, codisLabelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
     //val sdf:java.text.SimpleDateFormat=new java.text.SimpleDateFormat(originalDataFieldName_timeFormat)
-    logger.debug("LastLacCiLabelStayRule begin......")
+    //logger.debug("LastLacCiLabelStayRule begin......")
     //logger.debug(conf.getAll.toString)
 
     //本次的实时位置lac、ci、time
     val curr_lac = originalDataMap.getOrElse(originalDataFieldName_lac,"")
     val curr_ci = originalDataMap.getOrElse(originalDataFieldName_cell,"")
     val curr_timeStr = originalDataMap.getOrElse(originalDataFieldName_time,"")
-    logger.info("curr line data:lac="+curr_lac+",ci="+curr_ci+",time="+curr_timeStr)
+    //logger.info("curr line data:lac="+curr_lac+",ci="+curr_ci+",time="+curr_timeStr)
 
     //取出上一次实时位置lac_ci的cache
-    val lastLacCiCache = if (codisLableCache == null){logger.debug("lastLabel is null......"); new SimpleLabelProps} else codisLableCache.asInstanceOf[SimpleLabelProps]
+    val lastLacCiCache = if (codisLableCache == null){new SimpleLabelProps} else codisLableCache.asInstanceOf[SimpleLabelProps]
     val lastLacCiCacheValueMap=lastLacCiCache.labelsPropList//codis缓存value
     val last_lac_id = lastLacCiCacheValueMap.getOrElse(labelAddFieldName_lac,"")
     val last_ci_id  = lastLacCiCacheValueMap.getOrElse(labelAddFieldName_ci,"")
     val llc_first = lastLacCiCacheValueMap.getOrElse(labelAddFieldName_firstTime,"")
     //val llc_end = lastLacCiCacheValueMap.getOrElse(labelAddFieldName_endTime,"")
-    logger.info("last LabelCache data:last_lac="+last_lac_id+",last_ci="+last_ci_id+",last_time="+llc_first)
+    //logger.info("last LabelCache data:last_lac="+last_lac_id+",last_ci="+last_ci_id+",last_time="+llc_first)
 
     val addFieldMap = fieldsMap() //初始化增强字段，默认为“”
     //新codis缓存数据
@@ -62,7 +62,7 @@ class LastLacCiLabelStayRule extends Label {
     var newcache_ftime=""
 
     if(last_lac_id.isEmpty || last_ci_id.isEmpty){//1.第一次处理，无历史缓存数据
-      logger.info("no last labelCache,init......")
+      //logger.info("no last labelCache,init......")
       //向codis缓存中记录本次的位置及first_dt，
       newcache_lac=curr_lac
       newcache_ci=curr_ci
@@ -71,7 +71,7 @@ class LastLacCiLabelStayRule extends Label {
       //标签增强的各字段设置为空
     }else{//有历史缓存数据
       if(curr_lac==last_lac_id && curr_ci==last_ci_id){//2.用户所在位置无变化，
-        logger.info("last labelCache is same with current,no change labelCache......")
+        //logger.info("last labelCache is same with current,no change labelCache......")
         //a:不更新codis缓存数据
         newcache_lac=last_lac_id
         newcache_ci=last_ci_id
@@ -89,7 +89,7 @@ class LastLacCiLabelStayRule extends Label {
           addFieldMap.update(labelAddFieldName_firstTime,llc_first)
         }
       }else{//3.用户所在位置发生变化，
-        logger.info("last labelCache is diff with current,change labelCache......")
+        //logger.info("last labelCache is diff with current,change labelCache......")
         if(llc_first.compareTo(curr_timeStr)<0){//正常数据
           //a:codis缓存中记录本次的lac、ci、firsttime
           newcache_lac=curr_lac
@@ -111,7 +111,7 @@ class LastLacCiLabelStayRule extends Label {
 
     //更新codis的cache
     lastLacCiCache.labelsPropList = Map(labelAddFieldName_lac->newcache_lac,labelAddFieldName_ci->newcache_ci,labelAddFieldName_firstTime->newcache_ftime)
-    logger.info("this saved LabelCache data:last_lac="+lastLacCiCache.labelsPropList.getOrElse("last_lac","")+",last_ci="+lastLacCiCache.labelsPropList.getOrElse("last_ci","")+",last_time="+lastLacCiCache.labelsPropList.getOrElse(labelAddFieldName_firstTime,""))
+    //logger.info("this saved LabelCache data:last_lac="+lastLacCiCache.labelsPropList.getOrElse("last_lac","")+",last_ci="+lastLacCiCache.labelsPropList.getOrElse("last_ci","")+",last_time="+lastLacCiCache.labelsPropList.getOrElse(labelAddFieldName_firstTime,""))
 
     //返回增强后的数据、待更新的codis cache
     (addFieldMap.toMap, lastLacCiCache)
