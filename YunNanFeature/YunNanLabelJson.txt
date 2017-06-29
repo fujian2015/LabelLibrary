@@ -1,4 +1,4 @@
-1、用户归属地标签 ---- com.asiainfo.ocdp.stream.label.examples.UserCityInfoLabel
+1、用户归属地标签 ---- com.asiainfo.ocdp.stream.label.examples.UserBaseInfoLabel
     {"props":[{"pname":"default_province_name", "pvalue":"云南省"}],
      "labelItems":[{"pname":"用户归属省份", "pvalue":"seg_province_name"},{"pname":"用户归属地市", "pvalue":"seg_city_name"}]}
     说明：根据在标签中定义的codis查询key格式，得到每条信令中的codis key，如“user_base_info:$imsi”、“phone_seg_info:$msisdn.substr(2,9)”，然后来关联codis中的用户表、号段表，增强用户信息。
