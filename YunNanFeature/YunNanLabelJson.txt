@@ -1,0 +1,56 @@
+1、用户归属地标签 ---- com.asiainfo.ocdp.stream.label.examples.UserCityInfoLabel
+    {"props":[{"pname":"default_province_name", "pvalue":"云南省"}],
+     "labelItems":[{"pname":"用户归属省份", "pvalue":"seg_province_name"},{"pname":"用户归属地市", "pvalue":"seg_city_name"}]}
+    说明：根据在标签中定义的codis查询key格式，得到每条信令中的codis key，如“user_base_info:$imsi”、“phone_seg_info:$msisdn.substr(2,9)”，然后来关联codis中的用户表、号段表，增强用户信息。
+    注：具体增强的字段名称需为codis中的字段名称，可自行扩展。
+    业务逻辑：
+        首先取出信令中的imsi、msisdn，
+        如果msisdn为空，则根据用户imsi，查询本省用户表，得到该用户的号码msisdn。
+        然后，截取msisdn的前7位作为号段，根据号段，从号段表中得到用户的归属省份、归属地市等信息。
+
+
+2、基站-区域标签 ---- com.asiainfo.ocdp.stream.label.examples.AreaLabel
+    {"props":[],
+     "labelItems":[{"pname":"区域类型编码", "pvalue":"region_type"},{"pname":"区域类型名称，如风景区、客运站", "pvalue":"region_type_name"},
+                   {"pname":"区域编码", "pvalue":"region_code"},{"pname":"区域名称", "pvalue":"region_name"},
+                   {"pname":"地市编码", "pvalue":"lc_city_code"},{"pname":"经度", "pvalue":"longitude"},{"pname":"纬度", "pvalue":"latitude"}]}
+    说明：根据标签中定义的codis查询key格式，得到每条信令中的codis key，如"area_info:$tac:$ci",然后来关联codis维表td_humtrf_lac_area_info，增强基站表中的具体字段。
+    注：增强的字段名称需为codis中的字段名称，可自行扩展。
+    业务逻辑：
+        首先取出信令中的lac、ci，
+        然后根据lac-ci，查询基站数据表，增强基站表的信息。
+
+3、用户轨迹标签 ---- com.asiainfo.ocdp.stream.label.examples.SiteLabel
+    {"props":[{"pname":"timestamp", "pvalue":"procedure_start_time"}],
+     "labelItems":[{"pname":"full_path", "pvalue":"full_path"},{"pname":"isLatestSite", "pvalue":"isLatestSite"}]}
+    说明：
+        用于判断该条信令是否可作为用户轨迹的统计数据。会增强字段full_path（是否用于沉淀用户轨迹）=true/false,isLatestSite（是否最新位置数据）=true/false。
+
+    具体逻辑：
+        首先取出信令中时间、tac、ci，
+        然后根据用户的imsi，取出该用户的历史缓存数据。
+        如何没有历史数据，则认为该条信令是该用户的最新数据。则将full_path、isLatestSite均置为true，是该用户的最新位置、并且用于沉淀用户轨迹。同时将该信令中lac、ci、时间保存在codis中作为历史缓存数据。
+        如果有历史数据，则取出该用户上一次的缓存数据：lac、ci、时间，
+            若本条信令中的时间晚于历史时间晚，则认为该条信令是该用户的最新位置信息，会将isLatestSite置为true; 若本条信令中的lac、ci与历史的lac、ci不同，则认为本条信令可用于用户轨迹的沉淀，会将full_path置为true；若若本条信令中的lac、ci与历史的lac、ci相同，则认为本条信令不能用于用户轨迹的沉淀，会将full_path置为false；同时将该信令中lac、ci、时间保存在codis中作为历史缓存数据。
+            若本条信令中的时间早于历史时间，则该条信令是延时到达的数据，则将isLatestSite置为false，不是用户最新位置信息。如该延时数据在30分钟以内，则将full_path置为true，用于计算用户轨迹。
+	
+
+4、景区日人流量实时统计标签：
+com.asiainfo.ocdp.stream.label.examples.AccumulateLabel
+{"props":[{"pname":"interval", "pvalue":"86400"},{"pname":"timestamp", "pvalue":"procedure_start_time"}],
+ "labelItems":[{"pname":"isAccu_area", "pvalue":"isAccu_area"}]}
+说明：
+    用于判断该条信令是否可作为某个景区（区域）日人流量的统计。增强字段isAccu_area=true/false。
+    base on 基站区域标签，
+    对每条原始数据，与codis中的缓存数据比较，增强标签：是否用于某个区域人数的计算。
+    interval用于指定统计周期秒数。如：要统计每天的人流量，则需配置为24h*60m*60s=86400s。
+        要统计每月的人流量，则需配置为30d*24h*60m*60s=2592000s。
+        要统计每小时的人流量，则需配置为60m*60s=3600s。
+
+业务逻辑：
+	首先取出信令中的imsi、时间、区域标签已增强的region_code。
+	然后取出用户配置的统计时间间隔，即interval的值。
+	然后根据用户imsi，取出codis中的缓存数据。
+	如果codis中无该用户的缓存数据，则认为该条数据用于该region_code的人数统计，将isAccu_area置为true，同时在codis保存该region_code和本条信令的时间。
+	如果codis中有该用户的缓存数据，则取出该用户上一次在该region_code的时间，如果【本次时间>=(interval+历史时间)】，则认为该条数据用于该region_code的人数统计，将isAccu_area置为true。
+	否则将isAccu_area置为false。

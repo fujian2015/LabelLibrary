@@ -9,22 +9,34 @@ import scala.collection.mutable
 
 /**
   * Created by peng on 2017/6/1.
+  * 根据lac-ci，获取该基站的归属区域、经纬度等信息
   */
 class AreaLabel extends Label {
   val logger = LoggerFactory.getLogger(this.getClass)
   //区域标签前缀
-  val tour_type_sine = "tour_area"
-  val security_type_sine = "security_area"
-  //经纬度标签前缀
-  val longitude_sine = "longitude"
-  val latitude_sine = "latitude"
-  override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
+//  val tour_type_sine = "tour_area"
+//  val security_type_sine = "security_area"
+//  //经纬度标签前缀
+//  val longitude_sine = "longitude"
+//  val latitude_sine = "latitude"
+  var lineField_lac="tac"//原始信令中的字段名称，需要现场配置一致
+  var lineField_ci="cell_id"//原始信令中的字段名称，需要现场配置一致
 
+  override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
     val labelMap = fieldsMap()
+    val labelAddFields=getLabelConf.getFields()
 
     val cachedArea = labelQryData.getOrElse(getQryKeys(line).head, Map[String, String]())
 
-    labelMap += (LabelConstant.LABEL_TOUR_AREA -> "")
+    labelAddFields.foreach(labelName => {
+      cachedArea.get(labelName) match {
+        case Some(value) =>
+          labelMap += (labelName -> value)
+        case None =>
+      }
+    })
+
+/*    labelMap += (LabelConstant.LABEL_TOUR_AREA -> "")
     labelMap += (LabelConstant.LABEL_SECURITY_AREA -> "")
     labelMap += (LabelConstant.LABEL_LONGITUDE -> "")
     labelMap += (LabelConstant.LABEL_LATITUDE -> "")
@@ -64,7 +76,7 @@ class AreaLabel extends Label {
         labelMap += (LabelConstant.LABEL_SECURITY_AREA -> area)
       }
     }
-
+*/
 
     labelMap ++= line
 
@@ -76,7 +88,7 @@ class AreaLabel extends Label {
     * @param line :MC信令对像
     * @return codis数据库的key
     */
-  override def getQryKeys(line: Map[String, String]): Set[String] = Set[String]("area_info:" + line("lac") + "_" + line("cell"))
+  override def getQryKeys(line: Map[String, String]): Set[String] = Set[String]("area_info:" + line.getOrElse(lineField_lac,"") + "_" + line.getOrElse(lineField_ci,""))
 
   /**
     * 把cache的数据转为可变map
