@@ -21,6 +21,7 @@
 		<module>BeiJingFeature</module>
         <module>YunNanFeature</module>
         <module>HuBeiFeature</module>
+        <module>QingHaiFeature</module>
     </modules>
 
     <dependencies>

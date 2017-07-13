@@ -86,10 +86,10 @@ class UserBaseInfoLabel extends Label {
             labelMap += (labelName -> labelValue)
 
             // 截取手机号前7位
-            println("-------labelName:" + labelName + ",labelValue:" + labelValue)
+            // println("-------labelName:" + labelName + ",labelValue:" + labelValue)
             if (labelName.equals(phoneFieldName)) {
               labelMap.update(phone_substr_seven, labelValue.substring(0, 7))
-              println("-------phone_substr_seven:" + labelValue.substring(0, 7))
+              // println("-------phone_substr_seven:" + labelValue.substring(0, 7))
             }
 
           }
