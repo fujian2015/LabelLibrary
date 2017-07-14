@@ -18,9 +18,7 @@ class SiteLabel extends Label {
   val ci_fieldName = "ci"
   //数据源接口定义的ci字段名称，需与配置现场一致
   val type_sine = "area_"
-  //标签增强字段的前缀：驻留时长标签会使用、
-  val info_sine = "areainfo_" //标签增强字段的前缀：以该前缀开头的标签字段需对应codis中的value的item字段，如areainfo_school_id,需在codis中存在school_id属性值
-
+  //标签增强字段的前缀：驻留时长标签会使用
   val codis_key_prefix = "lacci2area:"
   //codis中基站信息查询key的前缀
   val codis_foreignKeys_separator = "_" //codis多个key的连接符
@@ -57,16 +55,8 @@ class SiteLabel extends Label {
         }
       }
 
-      //过滤出标签字段中以areainfo_开头的字段
-      val conf_lable_info_items = label_addFields.filter(item => if (item.startsWith(info_sine)) true else false)
-      //对以areainfo_开头的字段，打上区域信息,如:areainfo_school_id标签字段，会从codis中取出该区域的shcool_id的值
-      conf_lable_info_items.foreach(info => {
-        val codis_item = info.substring(9) // 去除［areainfo_］前缀
-        labelData.update(info, currentArea.getOrElse(codis_item, ""))
-      })
-
       //其它标签字段附加
-      val conf_lable_other_items = label_addFields.filter(item => if (item.startsWith(info_sine)) false else true)
+      val conf_lable_other_items = label_addFields.filter(item => if (item.startsWith(type_sine)) false else true)
       conf_lable_other_items.foreach(item => {
         currentArea.get(item) match {
           case Some(value) =>

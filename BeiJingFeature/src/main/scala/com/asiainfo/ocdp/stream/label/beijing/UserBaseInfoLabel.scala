@@ -133,9 +133,10 @@ class UserBaseInfoLabel extends Label {
     //println("6.msisdn:" + msisdn + ",datetime:" + datetime)
     if (msisdn != "" && msisdn != null && msisdn.length >= 9) {
       labelMap.update(msisdn_substr_nine, (msisdn.substring(0, 9)))
-      if (datetime != "" && datetime != null) {
-        labelMap.update(datetime_format, transDateFormat(dateformat_yyyyMMddHHmmss, dateformat_yyyyMMddHHmmssSSS, datetime))
-      }
+    }
+
+    if (datetime != "" && datetime != null && datetime.length < 21) {
+      labelMap.update(datetime_format, transDateFormat(dateformat_yyyyMMddHHmmss, dateformat_yyyyMMddHHmmssSSS, datetime))
     } else {
       labelMap.update(datetime_format, datetime) //mc信令不用转换格式
     }
