@@ -160,7 +160,7 @@ class LocationStayLabel extends Label {
                           mcStayLabelsMap: mutable.Map[String, String],
                           mcTime: Long) {
 
-    println("location:" + location + ",mcTime:" + mcTime)
+    // println("location:" + location + ",mcTime:" + mcTime)
     // 使用宽松的过滤策略，相同区域信令如果间隔超过${thresholdValue}，则判定为不连续
     val area = labelsPropMap.get(location)
     area match {

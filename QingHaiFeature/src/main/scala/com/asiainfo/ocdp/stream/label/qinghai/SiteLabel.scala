@@ -17,8 +17,8 @@ class SiteLabel extends Label {
   //数据源接口定义的lac字段名称，需与配置现场一致
   val ci_fieldName = "ci"
   //数据源接口定义的ci字段名称，需与配置现场一致
-  val type_sine = "area_"
-  //标签增强字段的前缀：驻留时长标签会使用
+  val header_areas = "area_"
+  //标签增强字段areas的前缀：驻留时长标签会使用
   val codis_key_prefix = "lacci2area:"
   //codis中基站信息查询key的前缀
   val codis_foreignKeys_separator = "_" //codis多个key的连接符
@@ -45,7 +45,7 @@ class SiteLabel extends Label {
           // 只打信令所在区域中要指定的那些区域字段
           areasList.foreach(area => {
             // 添加区域标签前缀
-            val labelKey = type_sine + area.trim
+            val labelKey = header_areas + area.trim
             // 在用户定义标签范围内则打标签
             if (label_addFields.contains(labelKey)) {
               // 打区域标签
@@ -56,7 +56,7 @@ class SiteLabel extends Label {
       }
 
       //其它标签字段附加
-      val conf_lable_other_items = label_addFields.filter(item => if (item.startsWith(type_sine)) false else true)
+      val conf_lable_other_items = label_addFields.filter(item => if (item.startsWith(header_areas)) false else true)
       conf_lable_other_items.foreach(item => {
         currentArea.get(item) match {
           case Some(value) =>
