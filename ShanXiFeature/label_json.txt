@@ -1,0 +1,5 @@
+//com.asiainfo.ocdp.stream.label.examples.UserBaseInfoLabel的json串格式如下：
+{"props":[{"pname":"local_prov_id", "pvalue":"029"}, {"pname":"local_source_flag", "pvalue":"3"}, {"pname":"user_info_cols", "pvalue":"stat_date,serial_number,age_level,sex,eparchy_id,city_code,pspt_prov_code,pspt_eparchy_id,fee_level,flag_01,flag_02,flag_03,flag_04,flag_05,flag_06,flag_07,flag_08,flag_09,flag_10,flag_11,flag_12,flag_13,flag_14,flag_15,flag_16,flag_17,flag_18,flag_19,flag_20"}],"labelItems":[{"pname":"source_flag", "pvalue":"source_flag"}, {"pname":"prov_id", "pvalue":"prov_id"}, {"pname":"city_name", "pvalue":"city_name"}]}
+
+//com.asiainfo.ocdp.stream.label.examples.AreaLabel的json串格式如下：
+{"props":[{}],"labelItems":[{"pname":"tour_area", "pvalue":"tour_area"},{"pname":"security_area", "pvalue":"security_area"},{"pname":"longitude", "pvalue":"longitude"},{"pname":"latitude", "pvalue":"latitude"},{"pname":"lc_eparchy_id", "pvalue":"lc_eparchy_id"},{"pname":"lc_city_code", "pvalue":"lc_city_code"}]}

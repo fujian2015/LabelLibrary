@@ -10,6 +10,16 @@ import scala.collection.mutable
 /**
   * 打上旅游区域、安防区域标签
   * Created by gengwang on 16/8/11.
+  * codis中的结构
+      1) "security_area"	"A0AE07002"
+      2) "net_type"		"GSM"
+      3) "longitude"		"108.876167"
+      4) "latitude"		"34.280785"
+      5) "city_code"		"A0AE"
+      6) "area"			"0.000000"
+      7) "eparchy_id"		"A0"
+  *
+  *
   */
 class AreaLabel extends Label {
   val logger = LoggerFactory.getLogger(this.getClass)
@@ -25,6 +35,11 @@ class AreaLabel extends Label {
 
     val cachedArea = labelQryData.getOrElse(getQryKeys(line).head, Map[String, String]())
 
+    val info_cols=getLabelConf.getFields()//labelItems中的配置
+    info_cols.foreach(labelName => {
+        labelMap += (labelName -> cachedArea.getOrElse(labelName, ""))
+    })
+/*
     labelMap += (LabelConstant.LABEL_TOUR_AREA -> "")
     labelMap += (LabelConstant.LABEL_SECURITY_AREA -> "")
     labelMap += (LabelConstant.LABEL_LONGITUDE -> "")
@@ -65,10 +80,9 @@ class AreaLabel extends Label {
         labelMap += (LabelConstant.LABEL_SECURITY_AREA -> area)
       }
     }
-
+*/
 
     labelMap ++= line
-
     (labelMap.toMap, cache)
 
   }
