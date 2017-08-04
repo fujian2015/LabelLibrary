@@ -51,6 +51,9 @@ class UserBaseInfoLabel extends Label {
   val dateformat_yyyyMMddHHmmss = "yyyyMMddHHmmss"
   val dateformat_yyyyMMddHHmmssSSS = "yyyyMMdd HH:mm:ss:SSS"
 
+  // 是否为省内用户1为北京市用户
+  val is_local = "islocal"
+
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
 
     val labelMap = fieldsMap()
@@ -67,6 +70,7 @@ class UserBaseInfoLabel extends Label {
     labelMap += (datetime_format -> "")
     labelMap += (roaming_type -> "")
     labelMap += (phone_substr_seven -> "")
+    labelMap += (is_local -> "")
 
     //从codis获取缓存的用户信息
     val qryKey = getQryKeys(line)
@@ -76,10 +80,12 @@ class UserBaseInfoLabel extends Label {
       val cachedUser = labelQryData.getOrElse(qryKey.head, Map[String, String]())
       //println("2.cachedUser:" + cachedUser)
       if (cachedUser.isEmpty) {
-        //如果查询不到imsi,特殊处理
+        //如果查询不到imsi,代表省外用户
         //println("2.cachedUser is empty!")
+        labelMap.update(is_local, "0")
       } else {
         //println("3.info_cols:" + info_cols)
+        labelMap.update(is_local, "1") //表示北京市用户
         info_cols.foreach(labelName => {
           val labelValue = cachedUser.getOrElse(labelName, "")
           if (!labelValue.isEmpty) {

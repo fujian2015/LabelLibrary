@@ -24,7 +24,7 @@ class UserBaseInfoRule extends Label {
 
     //初始化用户附加标签为空
     val labelMap = fieldsMap()
-    labelMap += (field_is_local -> "") //默认空为省内用户
+    labelMap += (field_is_local -> "true") //默认为省内用户
 
     //用户标签字段
     val info_cols = conf.get(label_props_pname).split(",")

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import scala.collection.mutable
 
 /**
-  * lac ci基站位置标签
+  * 基站位置标签,23g信令以lac+ci为唯一key
   */
 class SiteLabel extends Label {
   val logger = LoggerFactory.getLogger(this.getClass)

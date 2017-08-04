@@ -10,7 +10,7 @@ import scala.collection.mutable
 /**
   * 基站位置标签,4g-mme信令以cellId为唯一key
   */
-class AreaLabel extends Label {
+class SiteLabelForLte extends Label {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
