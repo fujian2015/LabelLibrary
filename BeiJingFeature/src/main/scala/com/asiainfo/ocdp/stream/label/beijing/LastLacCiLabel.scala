@@ -80,7 +80,7 @@ class LastLacCiLabel extends Label {
         if (new_lac_ci != last_lac_ci) {
           newLine.update(is_changed, "true")
           // 更新codis缓存为最新的位置
-          changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_in_time -> new_time)
+          changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_intime -> new_time)
         } else {
           //如果位置没有发生变更不更新codis
           newLine.update(is_changed, "false")
@@ -88,7 +88,7 @@ class LastLacCiLabel extends Label {
       }
     } else {
       //第一次进入只更新codis缓存:本次的lac、ci、当前信令时间表示进入时间；此时上一次的信息都为空
-      changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_in_time -> new_time)
+      changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_intime -> new_time)
     }
 
     //返回增强后的数据、待更新的codis cache
