@@ -62,10 +62,12 @@ class LastLacCiLabel extends Label {
       case Some(v) => v
       case None => ""
     }
-    val last_lac_ci = last_lac_id + "_" + last_cell_id
+    var last_lac_ci = ""
+
 
     //非第一次进入，已经在codis里面缓存过
     if (last_lac_id != "" && last_cell_id != "") {
+      last_lac_ci = last_lac_id + "_" + last_cell_id
       //当前信令时间>=上一次的信令时间，即过滤掉了延时到达的数据
       if (new_time >= last_in_time) {
 
@@ -88,6 +90,8 @@ class LastLacCiLabel extends Label {
       }
     } else {
       //第一次进入只更新codis缓存:本次的lac、ci、当前信令时间表示进入时间；此时上一次的信息都为空
+      //第一次进来认为是位置发生变更
+      newLine.update(is_changed, "true")
       changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_intime -> new_time)
     }
 
