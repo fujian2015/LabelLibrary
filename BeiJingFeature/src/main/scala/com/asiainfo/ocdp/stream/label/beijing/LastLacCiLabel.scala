@@ -26,8 +26,8 @@ class LastLacCiLabel extends Label {
   val labelAddFieldName_lac_cell = "last_lac_ci"
   // 上一次的进入时间
   val last_intime = "intime"
-  // 上一次的离开时间、本次的活跃时间
-  val last_leavetime = "activetime"
+  // 上一次的活跃时间
+  val last_activetime = "activetime"
 
   // 位置是否发生变更
   val is_changed = "ischanged"
@@ -62,37 +62,45 @@ class LastLacCiLabel extends Label {
       case Some(v) => v
       case None => ""
     }
-    var last_lac_ci = ""
+    val last_active_time = changeLacCiCache.cacheLacCi.get(last_activetime) match {
+      case Some(v) => v
+      case None => ""
+    }
+    val last_lac_ci = last_lac_id + "_" + last_cell_id
 
 
     //非第一次进入，已经在codis里面缓存过
     if (last_lac_id != "" && last_cell_id != "") {
-      last_lac_ci = last_lac_id + "_" + last_cell_id
-      //当前信令时间>=上一次的信令时间，即过滤掉了延时到达的数据
-      if (new_time >= last_in_time) {
+
+      //当前信令时间>=上一次的活跃时间，即过滤掉了延时到达的数据
+      if (new_time >= last_active_time) {
 
         //不管位置是否发生变更都需要增强数据
         newLine.update(labelAddFieldName_lac, last_lac_id)
         newLine.update(labelAddFieldName_cell, last_cell_id)
         newLine.update(labelAddFieldName_lac_cell, last_lac_ci)
-        newLine.update(last_intime, last_in_time) //进入时间
-        newLine.update(last_leavetime, new_time) //活跃时间
+        newLine.update(last_intime, last_in_time) //上一次的进入时间
+        newLine.update(last_activetime, new_time) //上一次的活跃时间，如果位置发生变更则为离开时间
 
         //位置发生变更时
-        if (new_lac_ci != last_lac_ci) {
+        if (!new_lac_ci.equals(last_lac_ci)) {
+
           newLine.update(is_changed, "true")
           // 更新codis缓存为最新的位置
-          changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_intime -> new_time)
+          changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_intime -> new_time, last_activetime -> new_time)
         } else {
-          //如果位置没有发生变更不更新codis
+
           newLine.update(is_changed, "false")
+          //如果位置没有发生变更只更新活跃时间
+          changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_intime -> last_in_time, last_activetime -> new_time)
         }
       }
     } else {
       //第一次进入只更新codis缓存:本次的lac、ci、当前信令时间表示进入时间；此时上一次的信息都为空
       //第一次进来认为是位置发生变更
       newLine.update(is_changed, "true")
-      changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_intime -> new_time)
+      newLine.update(last_intime, new_time) //进入时间
+      changeLacCiCache.cacheLacCi = Map[String, String](labelAddFieldName_lac -> new_lac, labelAddFieldName_cell -> new_ci, last_intime -> new_time, last_activetime -> new_time)
     }
 
     //返回增强后的数据、待更新的codis cache

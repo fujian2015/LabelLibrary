@@ -48,6 +48,7 @@ class UserBaseInfoLabel extends Label {
   val datetime_format = "datetime_format"
   //mme信令日期字段
   val datetimeFieldName = "datetime"
+  val datetimeFieldName_Endtime = "procedure_end_time"
   val dateformat_yyyyMMddHHmmss = "yyyyMMddHHmmss"
   val dateformat_yyyyMMddHHmmssSSS = "yyyyMMdd HH:mm:ss:SSS"
 
@@ -136,9 +137,18 @@ class UserBaseInfoLabel extends Label {
     //4G mme信令处理
     val msisdn = line.getOrElse(msisdnFieldName, "")
     val datetime = line.getOrElse(datetimeFieldName, "")
+    val endtime = line.getOrElse(datetimeFieldName_Endtime, "")
+
     //println("6.msisdn:" + msisdn + ",datetime:" + datetime)
     if (msisdn != "" && msisdn != null && msisdn.length >= 9) {
       labelMap.update(msisdn_substr_nine, (msisdn.substring(0, 9)))
+
+      val sdf = new SimpleDateFormat(dateformat_yyyyMMddHHmmss);
+      val starttime_ms = sdf.parse(datetime).getTime().toString;
+      //毫秒
+      val endtime_ms = sdf.parse(endtime).getTime().toString; //毫秒
+      labelMap += ("starttime_ms" -> starttime_ms)
+      labelMap += ("endtime_ms" -> endtime_ms)
     }
 
     if (datetime != "" && datetime != null && datetime.length < 21) {
