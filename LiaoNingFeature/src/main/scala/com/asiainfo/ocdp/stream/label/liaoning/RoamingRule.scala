@@ -33,7 +33,6 @@ class RoamingRule extends Label {
     println(user_state_id)
 
     var roamingType=""
-
     if("852"==user_state_id || "853"==user_state_id || "886"==user_state_id){
       roamingType="3"//港澳台漫游
     }else if("0000"!=user_state_id) {//国外!=0000

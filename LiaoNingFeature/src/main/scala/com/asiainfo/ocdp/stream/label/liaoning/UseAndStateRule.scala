@@ -38,7 +38,7 @@ class UseAndStateRule extends Label {
     var fieldMap = this.fieldsMap() //定义默认的空map，表示要打的标签字段及值
     val user_location_colList=conf.get("user_location_cols","user_state_id,user_province_id,user_city_id").split(",")//用户归属地字段
     val info_cols = fieldMap.keys.++(user_location_colList)
-    //    println(info_cols)
+    //println(info_cols)
     user_location_colList.foreach(colName=> {
       if(!fieldMap.contains(colName)){
         fieldMap += (colName -> "")
