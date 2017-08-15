@@ -26,25 +26,26 @@ class RoamingRule extends Label {
     var fieldMap = this.fieldsMap() //定义默认的空map，表示要打的标签字段及值
     //val info_cols = fieldMap.keys//conf.get(label_props_pname).split(",")
 
-    val user_state_id=line(userLabel_field_state_id)//用户标签中增强的字段值
-    val user_province_id=line(userLabel_field_province_id)//用户标签中增强的字段值
-    val user_city_id=line(userLabel_field_city_id)//用户标签中增强的字段值
-    val vst_city_id=line(siteLabel_field_city_id)//区域标签中增强的字段值
+    val user_state_id=line.getOrElse(userLabel_field_state_id,"")//用户标签中增强的字段值
+    val user_province_id=line.getOrElse(userLabel_field_province_id,"")//用户标签中增强的字段值
+    val user_city_id=line.getOrElse(userLabel_field_city_id,"")//用户标签中增强的字段值
+    val vst_city_id=line.getOrElse(siteLabel_field_city_id,"")//区域标签中增强的字段值
+    println(user_state_id)
 
     var roamingType=""
 
-    if("852".eq(user_state_id) || "853".eq(user_state_id) || "886".eq(user_state_id)){
+    if("852"==user_state_id || "853"==user_state_id || "886"==user_state_id){
       roamingType="3"//港澳台漫游
-    }else if(!"0000".eq(user_state_id)) {//国外!=0000
+    }else if("0000"!=user_state_id) {//国外!=0000
       roamingType="4" //国际漫游
-    }else if("0000".eq(user_state_id)){//国内=0000
-      if(local_province_id.eq(user_province_id)){//本省
-        if(vst_city_id.eq(user_city_id)){
+    }else if("0000"==user_state_id){//国内=0000
+      if(local_province_id==user_province_id){//本省
+        if(vst_city_id==user_city_id){
           roamingType="0" //无漫游
         }else{
           roamingType="1" //省内漫游
         }
-      }else if( !"0000".eq(user_province_id) ){//省外
+      }else if( "0000"!=user_province_id) {//省外
         roamingType="2" //省际漫游
       }
     }
