@@ -72,18 +72,36 @@ class UserBaseInfoLabel extends Label {
     labelMap += (roaming_type -> "")
     labelMap += (phone_substr_seven -> "")
     labelMap += (is_local -> "")
+    labelMap += ("starttime_ms" -> "")
+    labelMap += ("endtime_ms" -> "")
 
     //从codis获取缓存的用户信息
     val qryKey = getQryKeys(line)
+    val imsi = line(imsiFieldName)
+    val imsi_pre_ten = imsi.substring(0, 10) //imsi前10位
 
     // println("1.qryKey:" + qryKey)
-    if (qryKey.size == 1) {
+    if (qryKey.size == 2) {
       val cachedUser = labelQryData.getOrElse(qryKey.head, Map[String, String]())
       //println("2.cachedUser:" + cachedUser)
       if (cachedUser.isEmpty) {
         //如果查询不到imsi,代表省外用户
         //println("2.cachedUser is empty!")
         labelMap.update(is_local, "0")
+        val cachedUser_out = labelQryData.getOrElse(codis_key_prefix + imsi_pre_ten, Map[String, String]())
+        info_cols.foreach(labelName => {
+          val labelValue = cachedUser_out.getOrElse(labelName, "")
+          if (!labelValue.isEmpty) {
+            labelMap += (labelName -> labelValue)
+            // 截取手机号前7位
+            if (labelName.equals(phoneFieldName)) {
+              labelMap.update(phone_substr_seven, labelValue.substring(0, 7))
+            }
+
+          }
+        })
+
+
       } else {
         //println("3.info_cols:" + info_cols)
         labelMap.update(is_local, "1") //表示北京市用户
@@ -106,7 +124,6 @@ class UserBaseInfoLabel extends Label {
     }
 
     //追加imsi特殊处理字段
-    val imsi = line(imsiFieldName)
     //println("4.imsi:" + imsi)
     if (imsi != null && imsi != "") {
 
@@ -142,17 +159,17 @@ class UserBaseInfoLabel extends Label {
     //println("6.msisdn:" + msisdn + ",datetime:" + datetime)
     if (msisdn != "" && msisdn != null && msisdn.length >= 9) {
       labelMap.update(msisdn_substr_nine, (msisdn.substring(0, 9)))
+    }
+
+    if (datetime != "" && datetime != null && datetime.length < 21) {
+      labelMap.update(datetime_format, transDateFormat(dateformat_yyyyMMddHHmmss, dateformat_yyyyMMddHHmmssSSS, datetime))
 
       val sdf = new SimpleDateFormat(dateformat_yyyyMMddHHmmss);
       val starttime_ms = sdf.parse(datetime).getTime().toString;
       //毫秒
       val endtime_ms = sdf.parse(endtime).getTime().toString; //毫秒
-      labelMap += ("starttime_ms" -> starttime_ms)
-      labelMap += ("endtime_ms" -> endtime_ms)
-    }
-
-    if (datetime != "" && datetime != null && datetime.length < 21) {
-      labelMap.update(datetime_format, transDateFormat(dateformat_yyyyMMddHHmmss, dateformat_yyyyMMddHHmmssSSS, datetime))
+      labelMap.update("starttime_ms", starttime_ms)
+      labelMap.update("endtime_ms", endtime_ms)
     } else {
       labelMap.update(datetime_format, datetime) //mc信令不用转换格式
     }
@@ -184,7 +201,8 @@ class UserBaseInfoLabel extends Label {
   }
 
   override def getQryKeys(line: Map[String, String]): Set[String] =
-    Set[String](line(imsiFieldName)).
+  // 外省用户要用imsi前10位关联
+    Set[String](line(imsiFieldName), line(imsiFieldName).substring(0, 10)).
       filterNot(value => {
         value == null || value == "000000000000000"
       }).map(codis_key_prefix + _)
