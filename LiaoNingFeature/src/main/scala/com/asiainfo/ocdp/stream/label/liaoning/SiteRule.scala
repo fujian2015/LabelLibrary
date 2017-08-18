@@ -83,6 +83,6 @@ class SiteRule extends Label {
     * @return codis数据库的key
     */
   override def getQryKeys(line: Map[String, String]): Set[String] = {
-    Set[String](codis_key_prefix + line(lac_FileName) + codis_foreignKeys_separator + line(ci_FileName))
+    Set[String](codis_key_prefix + line.getOrElse(lac_FileName,"") + codis_foreignKeys_separator + line.getOrElse(ci_FileName,""))
   }
 }
