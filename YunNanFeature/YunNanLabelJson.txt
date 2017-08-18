@@ -1,6 +1,7 @@
 1、用户归属地标签 ---- com.asiainfo.ocdp.stream.label.examples.UserBaseInfoLabel
-    {"props":[{"pname":"default_province_name", "pvalue":"云南省"}],
-     "labelItems":[{"pname":"用户归属省份", "pvalue":"seg_province_name"},{"pname":"用户归属地市", "pvalue":"seg_city_name"}]}
+    {"props":[{"pname":"default_province_name", "pvalue":"云南省"},
+              {"pname":"user_location_cols","pvalue":"user_province_name,user_city_name"}],
+     "labelItems":[{"pname":"用户归属省份", "pvalue":"user_province_name"},{"pname":"用户归属地市", "pvalue":"user_city_name"},{"pname":"sex", "pvalue":"sex"},{"pname":" age_level", "pvalue":"age_level"},{"pname":" arpu_level", "pvalue":"arpu_level"},{"pname":"user_province_flag", "pvalue":"user_province_flag"}]}
     说明：根据在标签中定义的codis查询key格式，得到每条信令中的codis key，如“user_base_info:$imsi”、“phone_seg_info:$msisdn.substr(2,9)”，然后来关联codis中的用户表、号段表，增强用户信息。
     注：具体增强的字段名称需为codis中的字段名称，可自行扩展。
     业务逻辑：
@@ -10,10 +11,8 @@
 
 
 2、基站-区域标签 ---- com.asiainfo.ocdp.stream.label.examples.AreaLabel
-    {"props":[],
-     "labelItems":[{"pname":"区域类型编码", "pvalue":"region_type"},{"pname":"区域类型名称，如风景区、客运站", "pvalue":"region_type_name"},
-                   {"pname":"区域编码", "pvalue":"region_code"},{"pname":"区域名称", "pvalue":"region_name"},
-                   {"pname":"地市编码", "pvalue":"lc_city_code"},{"pname":"经度", "pvalue":"longitude"},{"pname":"纬度", "pvalue":"latitude"}]}
+    {"props":[],"labelItems":[{"pname":"区域类型编码", "pvalue":"region_type"},{"pname":"区域类型名称，如风景区、客运站", "pvalue":"region_type_name"},{"pname":"区域编码", "pvalue":"region_code"},{"pname":"区域名称", "pvalue":"region_name"},{"pname":"地市编码", "pvalue":"city_code"},{"pname":"地市名称", "pvalue":"city_name"},{"pname":"区县编码", "pvalue":"county_code"},{"pname":"区县名称", "pvalue":"county_name"},{"pname":"经度", "pvalue":"longitude"},{"pname":"纬度", "pvalue":"latitude"}]}
+
     说明：根据标签中定义的codis查询key格式，得到每条信令中的codis key，如"area_info:$tac:$ci",然后来关联codis维表td_humtrf_lac_area_info，增强基站表中的具体字段。
     注：增强的字段名称需为codis中的字段名称，可自行扩展。
     业务逻辑：

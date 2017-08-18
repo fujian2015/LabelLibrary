@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.sql.Time
 import java.sql.Timestamp
-import java.sql.Date
 
 import com.asiainfo.ocdp.stream.common.LabelProps
 import com.asiainfo.ocdp.stream.config.LabelConf
@@ -18,6 +17,11 @@ import scala.collection.mutable
 
 object LabelTestYn {
   def main(args: Array[String]) {
+//    val ma=Map("a"->"b")
+//    val mb=Map[String, String]()
+//    println(ma.isEmpty)
+//    println("bb="+mb.isEmpty)
+//
 //    val a=Set("000")
 //    println(a.head)
 //    val d=new Date()
@@ -30,9 +34,6 @@ object LabelTestYn {
 
     //testAccumulateLabel()
     testUserBaseInfoLabel()
-
-
-
   }
   //景区人数统计标签
   def testAccumulateLabel(): Unit ={
@@ -72,7 +73,7 @@ object LabelTestYn {
     //codis维表数据
     val labelQryData: mutable.Map[String, mutable.Map[String, String]]=mutable.Map(
         "user_base_info:123456"->mutable.Map("imsi"->"123456","msisdn"->"13853186257"),
-        "phone_seg_info:1385318" ->mutable.Map("seg_province_name"->"531","seg_city_name"->"0531")
+        "phone_seg_info:1385318" ->mutable.Map("user_province_name"->"531","user_city_name"->"0531")
     )
 
     //信令数据
@@ -81,7 +82,8 @@ object LabelTestYn {
     //标签json配置
     val cfg=new LabelConf()
     cfg.set("default_province_name","云南省")
-    val labelFields=List("seg_province_name","seg_city_name")
+    cfg.set("user_location_cols","user_province_name,user_city_name")
+    val labelFields=List("user_province_name","user_city_name","user_province_flag","sex","age_level","arpu_level")
     cfg.setFields(labelFields)
 
     val a=new UserBaseInfoLabel
