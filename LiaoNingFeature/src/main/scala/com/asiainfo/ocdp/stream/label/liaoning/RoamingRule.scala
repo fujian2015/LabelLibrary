@@ -30,7 +30,7 @@ class RoamingRule extends Label {
     val user_province_id=line.getOrElse(userLabel_field_province_id,"")//用户标签中增强的字段值
     val user_city_id=line.getOrElse(userLabel_field_city_id,"")//用户标签中增强的字段值
     val vst_city_id=line.getOrElse(siteLabel_field_city_id,"")//区域标签中增强的字段值
-    println(user_state_id)
+    //println(user_state_id)
 
     var roamingType=""
     if("852"==user_state_id || "853"==user_state_id || "886"==user_state_id){

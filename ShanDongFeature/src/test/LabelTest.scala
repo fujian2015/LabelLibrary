@@ -20,7 +20,7 @@ object LabelTest {
     a.init(cfg)
 
     val b=a.attachLabel(lineMap,codisLableCache,null)
-    println(b._1)
+    //println(b._1)
 //    println(b._2)
 
 //    val abc="1324,55,1121,1,111,101".split(",")

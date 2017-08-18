@@ -14,6 +14,7 @@ import com.asiainfo.ocdp.stream.label.examples.AreaLabel
 import com.asiainfo.ocdp.stream.label.examples.UserBaseInfoLabel
 
 import scala.collection.mutable
+import scala.tools.scalap.scalax.util.StringUtil
 
 object LabelTestYn {
   def main(args: Array[String]) {
@@ -59,8 +60,8 @@ object LabelTestYn {
     //标签测试代码
     val b=a.attachLabel(lineMap,codisLableCache,labelQryData)
     val newCache=b._2.asInstanceOf[LabelProps]
-    println("new Data="+b._1)
-    println("new cache="+newCache.labelsPropList)
+    //println("new Data="+b._1)
+    //println("new cache="+newCache.labelsPropList)
   }
 
   //用户标签测试
@@ -92,7 +93,7 @@ object LabelTestYn {
     //标签测试代码
     val b=a.attachLabel(lineMap,null,labelQryData)
     val newCache=b._2.asInstanceOf[LabelProps]
-    println("new Data="+b._1)
+    //println("new Data="+b._1)
     //println("new cache="+newCache.labelsPropList)
   }
 
@@ -109,8 +110,9 @@ object LabelTestYn {
     val lineMap=Map("tac"->"12333","cell_id"->"35353","time"->"2017-05-10 11:05:00")
 
     //标签json配置
-    val labelFields=List("region_type","region_type_name","city_code","longitude")
+    val labelFields=List("region_type","region_type_name","city_code","longitude","user_province_name","user_city_name")
     val cfg=new LabelConf()
+    cfg.set("user_location_cols","user_province_name,user_city_name")
     cfg.setFields(labelFields)
     val a=new AreaLabel
 
@@ -119,6 +121,6 @@ object LabelTestYn {
     //标签测试代码
     val b=a.attachLabel(lineMap,null,labelQryData)
     println("new data="+b._1)
-    println("new cache="+b._2)
+    //println("new cache="+b._2)
   }
 }

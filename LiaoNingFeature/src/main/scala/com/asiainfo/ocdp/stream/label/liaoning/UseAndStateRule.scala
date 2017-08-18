@@ -109,7 +109,7 @@ class UseAndStateRule extends Label {
   override def getQryKeys(line: Map[String, String]): Set[String] ={
     val keys=mutable.Set[String]()
     val imsi_val= line.getOrElse(ds_callingImsi,"")
-    println(imsi_val)
+    //println(imsi_val)
     if(imsi_val== null||""==imsi_val || imsi_val == "000000000000000"||imsi_val == "ffffffffffffffff"){
     }else{
       keys.add(codis_key_user_prefix + imsi_val)

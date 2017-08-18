@@ -1,7 +1,5 @@
-package com.asiainfo.ocdp.stream.test
-
 import org.json4s.DefaultFormats
-import org.json4s.JsonAST.{JString, JValue}
+import org.json4s.JsonAST.JString
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
@@ -16,9 +14,9 @@ object Json4sUtils {
     val map = Map("imsi_aes" -> "+3dgvujgnUQskIeIvVjfpA==", "imsi_md5" -> "bbbbb", "ccc" -> "ccc")
     val str = map2JsonStr(map)
     val array = Array("imsi_aes", "imsi_md5")
-    println(str)
+    //println(str)
     val result = jsonStr2ArrTuple2(str, array)
-    println(result)
+    //println(result)
   }
 
   /**

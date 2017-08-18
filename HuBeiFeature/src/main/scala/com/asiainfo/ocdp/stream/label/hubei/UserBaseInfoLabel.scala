@@ -35,14 +35,14 @@ class UserBaseInfoLabel extends Label {
     var fieldMap: Map[String, String] = Map() //定义空map，表示要打的标签字段及值
 
     if (qryKeys.size == 0) {
-      println("-----------qryKeys.size==0 , do nothing!")
+      //println("-----------qryKeys.size==0 , do nothing!")
       // do nothing
     } else if (qryKeys.size == 1) {
       //只对主叫进行信息增强
       //其中一个imsi无效
       val qryKey = qryKeys.head
       val userKey = qryKey.split(":")(1)
-      println("-----------qryKey==" + qryKey + ",userKey==" + userKey)
+      //println("-----------qryKey==" + qryKey + ",userKey==" + userKey)
       //val user_info_map = labelQryData.get(qryKey).get
       val user_info_map = labelQryData.getOrElse(qryKey, Map[String, String]())
       if (userKey == imsi_val) {

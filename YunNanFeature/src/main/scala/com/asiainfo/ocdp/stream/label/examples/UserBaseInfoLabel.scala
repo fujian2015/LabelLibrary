@@ -19,7 +19,7 @@ class UserBaseInfoLabel extends Label {
   val codisKeyPrefix_user="user_base_info:"//codis中key前缀
   val codisKeyPrefix_phoneSeg="phone_seg_info:"//codis中key前缀
 
-  val labelProvinceField="seg_province_name"
+  //val labelProvinceField="seg_province_name"
   val labelProvinceFlag="user_province_flag"//省内、省外标志,true|false
 
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
@@ -31,6 +31,8 @@ class UserBaseInfoLabel extends Label {
     //val defaultName = conf.get("default_province_name", "YunNan")
     val user_location_colList=conf.get("user_location_cols","user_province_name,user_city_name").split(",")//用户归属地字段
     val info_cols = labelMap.keys.++(user_location_colList)
+    //println(info_cols)
+
     //初始化用户归属地字段
     user_location_colList.foreach(colName=> {
       if(!labelMap.contains(colName)){
