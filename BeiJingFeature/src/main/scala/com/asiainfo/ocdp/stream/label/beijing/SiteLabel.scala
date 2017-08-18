@@ -25,6 +25,7 @@ class SiteLabel extends Label {
   val codis_key_prefix = "lacci2area:"
   //codis中基站信息查询key的前缀
   val codis_foreignKeys_separator = "_" //codis多个key的连接符
+  val areas_separator = "," //areas分隔符，一个基站可属于多个区域
 
   override def attachLabel(line: Map[String, String], cache: StreamingCache, labelQryData: mutable.Map[String, mutable.Map[String, String]]): (Map[String, String], StreamingCache) = {
 
@@ -44,7 +45,7 @@ class SiteLabel extends Label {
         val areas = currentArea(LabelConstant.LABEL_AREA_LIST_KEY).trim()
         if (areas != null && areas != "") {
           // 信令所在区域列表
-          val areasList = areas.split(",")
+          val areasList = areas.split(areas_separator)
           // 只打信令所在区域中要指定的那些区域字段
           areasList.foreach(area => {
             // 添加区域标签前缀
